@@ -1,4 +1,4 @@
-name: Build FlipOff 1.1
+name: Build FlipOff 1.2
 
 on:
   push:
@@ -60,7 +60,7 @@ jobs:
           echo "Package: $deb"
           dpkg-deb -f "$deb" Package Version Architecture
           test "$(dpkg-deb -f "$deb" Package)" = "com.simon.flipoff"
-          test "$(dpkg-deb -f "$deb" Version)" = "1.1.0"
+          test "$(dpkg-deb -f "$deb" Version)" = "1.2.0"
           test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
 
           rm -rf .package-check
@@ -84,7 +84,9 @@ jobs:
 
           grep -q 'CFPreferencesCopyAppValue' Tweak.xm
           grep -q 'CFNotificationCenterAddObserver' Tweak.xm
-          grep -q 'return %orig' Tweak.xm
+          grep -q 'setIsConnectedToUnsupportedChargingAccessory' Tweak.xm
+          grep -q '%orig(NO)' Tweak.xm
+          grep -q '%orig(unsupported)' Tweak.xm
           grep -q 'PSSwitchCell' Preferences/FlipOffPrefs.m
           grep -q 'setEnabled:specifier:' Preferences/FlipOffPrefs.m
           grep -q 'Test Accessory Alert' Preferences/FlipOffPrefs.m
@@ -95,5 +97,5 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: FlipOff-1.1.0-rootless-arm64-arm64e
+          name: FlipOff-1.2.0-rootless-arm64-arm64e
           path: packages/*.deb

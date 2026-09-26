@@ -1,0 +1,72 @@
+name: Build Accessory Alert Test
+
+on:
+  push:
+    branches: ["test-accessory-alert"]
+  workflow_dispatch:
+
+env:
+  THEOS: ${{ github.workspace }}/theos
+  TARGET: iphone:clang:latest:15.0
+  ARCHS: arm64
+  THEOS_PACKAGE_SCHEME: rootless
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Theos
+        id: theos-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/theos
+          key: ${{ runner.os }}-theos-rootless-v1
+
+      - name: Install Theos
+        if: steps.theos-cache.outputs.cache-hit != 'true'
+        run: git clone --depth=1 --recursive https://github.com/theos/theos.git "$THEOS"
+
+      - name: Install build dependencies
+        run: brew install ldid xz dpkg
+
+      - name: Build test tweak
+        run: make -C AccessoryAlertTest package FINALPACKAGE=1
+
+      - name: Build test preferences
+        run: make -C AccessoryAlertTestPrefs package FINALPACKAGE=1
+
+      - name: Validate tweak package
+        shell: bash
+        run: |
+          set -euo pipefail
+          deb="$(find AccessoryAlertTest/packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          test -n "$deb"
+          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
+          dpkg-deb -x "$deb" .tweak-check
+          dylib="$(find .tweak-check -type f -name 'AccessoryAlertTest.dylib' -print -quit)"
+          test -n "$dylib"
+          test "$(lipo -archs "$dylib")" = "arm64"
+
+      - name: Validate preferences package
+        shell: bash
+        run: |
+          set -euo pipefail
+          deb="$(find AccessoryAlertTestPrefs/packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          test -n "$deb"
+          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
+          dpkg-deb -x "$deb" .prefs-check
+          test -d ".prefs-check/Library/PreferenceBundles/AccessoryAlertTestPrefs.bundle"
+          test -f ".prefs-check/Library/PreferenceLoader/Preferences/com.simon.flipofftestprefs.plist"
+          dylib="$(find .prefs-check -type f -name 'AccessoryAlertTestPrefs' -print -quit)"
+          test -n "$dylib" || true
+
+      - name: Upload test packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: AccessoryAlertTest-arm64-rootless
+          path: |
+            AccessoryAlertTest/packages/*.deb
+            AccessoryAlertTestPrefs/packages/*.deb

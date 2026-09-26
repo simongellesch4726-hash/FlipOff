@@ -26,6 +26,9 @@ jobs:
       - name: Install Theos
         if: steps.theos-cache.outputs.cache-hit != 'true'
         run: git clone --depth=1 --recursive https://github.com/roothide/theos.git "$THEOS"
+      - name: Install build dependencies
+        run: brew install ldid xz dpkg
+
       - name: Verify Theos packaging tool
         run: |
           set -euo pipefail

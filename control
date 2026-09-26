@@ -1,9 +1,9 @@
-Package: com.simon.flipoff
-Name: FlipOff
+Package: com.simon.flipofftest
+Name: Accessory Alert Test
 Version: 0.1.0
 Architecture: iphoneos-arm64
-Description: Suppresses unsupported charging accessory state in SpringBoard.
+Description: Test utility for triggering SpringBoard's native unsupported accessory alert.
 Maintainer: Simon
 Author: Simon
 Section: Tweaks
-Depends: mobilesubstrate
+Depends: mobilesubstrate, preferenceloader

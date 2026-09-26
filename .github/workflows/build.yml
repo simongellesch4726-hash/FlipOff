@@ -9,7 +9,7 @@ env:
   THEOS: ${{ github.workspace }}/theos
   TARGET: iphone:clang:latest:15.0
   ARCHS: arm64
-  THEOS_PACKAGE_SCHEME: roothide
+  THEOS_PACKAGE_SCHEME: rootless
 
 jobs:
   build:
@@ -17,32 +17,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Cache Theos
         id: theos-cache
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/theos
-          key: ${{ runner.os }}-roothide-theos-v2
+          key: ${{ runner.os }}-theos-rootless-v1
+
       - name: Install Theos
         if: steps.theos-cache.outputs.cache-hit != 'true'
-        run: git clone --depth=1 --recursive https://github.com/roothide/theos.git "$THEOS"
+        run: git clone --depth=1 --recursive https://github.com/theos/theos.git "$THEOS"
+
       - name: Install build dependencies
         run: brew install ldid xz dpkg
 
-      - name: Verify Theos packaging tool
-        run: |
-          set -euo pipefail
-          chmod +x "$THEOS/vendor/dm.pl/dm.pl"
-          test -x "$THEOS/bin/dm.pl"
       - name: Build FlipOff
         run: make package FINALPACKAGE=1
+
       - name: Validate package
         shell: bash
         run: |
           set -euo pipefail
           deb="$(find packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
           test -n "$deb"
-          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64e"
+          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
           dpkg-deb -f "$deb" Package Version Architecture
           rm -rf .package-check
           dpkg-deb -x "$deb" .package-check
@@ -50,8 +49,9 @@ jobs:
           test -n "$dylib"
           test "$(lipo -archs "$dylib")" = "arm64"
           find .package-check -type f -o -type l | sort
+
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: FlipOff-deb-arm64
+          name: FlipOff-deb-arm64-rootless
           path: packages/*.deb

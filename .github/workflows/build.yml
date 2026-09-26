@@ -89,7 +89,8 @@ jobs:
           grep -q '%orig(unsupported)' Tweak.xm
           grep -q 'PSSwitchCell' Preferences/FlipOffPrefs.m
           grep -q 'setEnabled:specifier:' Preferences/FlipOffPrefs.m
-          grep -q 'Test Accessory Alert' Preferences/FlipOffPrefs.m
+          grep -q 'preferenceSpecifierNamed:@"magic button"' Preferences/FlipOffPrefs.m
+          grep -q 'if this button works, the tweak doesn’t' Preferences/FlipOffPrefs.m
 
           echo "Package contents:"
           find .package-check -maxdepth 6 -print | sort

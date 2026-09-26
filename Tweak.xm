@@ -3,6 +3,16 @@
 #import <objc/message.h>
 #import <objc/runtime.h>
 
+%hook SBUIController
+
+- (bool)_treatsAccessoryAsSupported:(id)accessory {
+    return YES;
+}
+
+%end
+
+static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
+
 static void TriggerAccessoryAlert(CFNotificationCenterRef center,
                                    void *observer,
                                    CFStringRef name,
@@ -30,7 +40,7 @@ static void TriggerAccessoryAlert(CFNotificationCenterRef center,
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
                                      NULL,
                                      TriggerAccessoryAlert,
-                                     CFSTR("com.simon.flipofftest/trigger"),
+                                     (__bridge CFStringRef)kTriggerNotification,
                                      NULL,
                                      CFNotificationSuspensionBehaviorDeliverImmediately);
 }

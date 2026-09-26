@@ -23,6 +23,15 @@ static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
                                                                         cell:PSSwitchCell
                                                                         edit:nil];
 
+        PSSpecifier *note = [PSSpecifier preferenceSpecifierNamed:@""
+                                                            target:self
+                                                               set:nil
+                                                               get:nil
+                                                            detail:nil
+                                                              cell:PSGroupCell
+                                                              edit:nil];
+        [note setProperty:@"if this button works, the tweak doesn’t" forKey:@"footerText"];
+
         PSSpecifier *button = [PSSpecifier preferenceSpecifierNamed:@"magic button"
                                                               target:self
                                                                  set:nil
@@ -30,10 +39,9 @@ static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
                                                               detail:nil
                                                                 cell:PSButtonCell
                                                                 edit:nil];
-        [button setProperty:@"if this button works, the tweak doesn’t" forKey:@"footerText"];
         [button setButtonAction:@selector(triggerAlert)];
 
-        _specifiers = [NSMutableArray arrayWithObjects:enabledSwitch, button, nil];
+        _specifiers = [NSMutableArray arrayWithObjects:enabledSwitch, note, button, nil];
     }
 
     return _specifiers;

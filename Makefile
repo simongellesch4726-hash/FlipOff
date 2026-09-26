@@ -1,14 +1,14 @@
 TARGET := iphone:clang:16.5:15.0
-ARCHS = arm64e
-THEOS_PACKAGE_SCHEME = roothide
+ARCHS = arm64 arm64e
+THEOS_PACKAGE_SCHEME = rootless
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = AccessoryAlertTest
+TWEAK_NAME = FlipOff
 
-AccessoryAlertTest_FILES = Tweak.xm
-AccessoryAlertTest_FRAMEWORKS = Foundation
-AccessoryAlertTest_CFLAGS = -fobjc-arc
+FlipOff_FILES = Tweak.xm
+FlipOff_FRAMEWORKS = Foundation
+FlipOff_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 

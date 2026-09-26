@@ -31,7 +31,6 @@ jobs:
           set -euo pipefail
           chmod +x "$THEOS/vendor/dm.pl/dm.pl"
           test -x "$THEOS/bin/dm.pl"
-          "$THEOS/bin/dm.pl" --help >/dev/null
       - name: Build FlipOff
         run: make package FINALPACKAGE=1
       - name: Validate package

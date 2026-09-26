@@ -60,7 +60,7 @@ jobs:
           echo "Package: $deb"
           dpkg-deb -f "$deb" Package Version Architecture
           test "$(dpkg-deb -f "$deb" Package)" = "com.simon.flipoff"
-          test "$(dpkg-deb -f "$deb" Version)" = "1.2.0"
+          test "$(dpkg-deb -f "$deb" Version)" = "1.0.0"
           test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
 
           rm -rf .package-check
@@ -98,5 +98,5 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: FlipOff-1.2.0-rootless-arm64-arm64e
+          name: FlipOff-1.0.0-rootless-arm64-arm64e
           path: packages/*.deb

@@ -1,7 +1,7 @@
 Package: com.simon.flipofftest
 Name: Accessory Alert Test
-Version: 0.1.0
-Architecture: iphoneos-arm64
+Version: 0.2.0
+Architecture: iphoneos-arm64e
 Description: Test utility for triggering SpringBoard's native unsupported accessory alert.
 Maintainer: Simon
 Author: Simon

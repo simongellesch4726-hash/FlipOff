@@ -32,41 +32,30 @@ jobs:
       - name: Install build dependencies
         run: brew install ldid xz dpkg
 
-      - name: Build test tweak
-        run: make -C AccessoryAlertTest package FINALPACKAGE=1
+      - name: Build package
+        run: make package FINALPACKAGE=1
 
-      - name: Build test preferences
-        run: make -C AccessoryAlertTestPrefs package FINALPACKAGE=1
-
-      - name: Validate tweak package
+      - name: Validate package
         shell: bash
         run: |
           set -euo pipefail
-          deb="$(find AccessoryAlertTest/packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          deb="$(find packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
           test -n "$deb"
           test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
-          dpkg-deb -x "$deb" .tweak-check
-          dylib="$(find .tweak-check -type f -name 'AccessoryAlertTest.dylib' -print -quit)"
+
+          rm -rf .package-check
+          dpkg-deb -x "$deb" .package-check
+
+          dylib="$(find .package-check -type f -name 'AccessoryAlertTest.dylib' -print -quit)"
           test -n "$dylib"
           test "$(lipo -archs "$dylib")" = "arm64"
 
-      - name: Validate preferences package
-        shell: bash
-        run: |
-          set -euo pipefail
-          deb="$(find AccessoryAlertTestPrefs/packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
-          test -n "$deb"
-          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
-          dpkg-deb -x "$deb" .prefs-check
-          test -d ".prefs-check/Library/PreferenceBundles/AccessoryAlertTestPrefs.bundle"
-          test -f ".prefs-check/Library/PreferenceLoader/Preferences/com.simon.flipofftestprefs.plist"
-          dylib="$(find .prefs-check -type f -name 'AccessoryAlertTestPrefs' -print -quit)"
-          test -n "$dylib" || true
+          test -f ".package-check/var/jb/Library/MobileSubstrate/DynamicLibraries/AccessoryAlertTest.plist"
+          test -d ".package-check/var/jb/Library/PreferenceBundles/AccessoryAlertTestPrefs.bundle"
+          test -f ".package-check/var/jb/Library/PreferenceLoader/Preferences/com.simon.flipofftestprefs.plist"
 
-      - name: Upload test packages
+      - name: Upload package
         uses: actions/upload-artifact@v4
         with:
           name: AccessoryAlertTest-arm64-rootless
-          path: |
-            AccessoryAlertTest/packages/*.deb
-            AccessoryAlertTestPrefs/packages/*.deb
+          path: packages/*.deb

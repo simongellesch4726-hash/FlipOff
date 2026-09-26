@@ -1,0 +1,43 @@
+name: Build FlipOff
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+env:
+  THEOS: ${{ github.workspace }}/theos
+  TARGET: iphone:clang:latest:15.0
+  ARCHS: arm64e
+  THEOS_PACKAGE_SCHEME: roothide
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache Theos
+        id: theos-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/theos
+          key: ${{ runner.os }}-roothide-theos-v1
+      - name: Install Theos
+        if: steps.theos-cache.outputs.cache-hit != 'true'
+        run: git clone --depth=1 https://github.com/roothide/theos.git "$THEOS"
+      - name: Build FlipOff
+        run: make package FINALPACKAGE=1
+      - name: Validate package
+        shell: bash
+        run: |
+          set -euo pipefail
+          deb="$(find packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          test -n "$deb"
+          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64e"
+          dpkg-deb -f "$deb" Package Version Architecture
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlipOff-deb
+          path: packages/*.deb

@@ -7,7 +7,7 @@ on:
 
 env:
   THEOS: ${{ github.workspace }}/theos
-  TARGET: iphone:clang:latest:15.0
+  TARGET: iphone:clang:16.5:15.0
   ARCHS: arm64
   THEOS_PACKAGE_SCHEME: rootless
 
@@ -28,6 +28,20 @@ jobs:
       - name: Install Theos
         if: steps.theos-cache.outputs.cache-hit != 'true'
         run: git clone --depth=1 --recursive https://github.com/theos/theos.git "$THEOS"
+
+      - name: Install patched iOS 16.5 SDK
+        run: |
+          set -euo pipefail
+          mkdir -p "$THEOS/sdks"
+          if [ ! -d "$THEOS/sdks/iPhoneOS16.5.sdk" ]; then
+            tmpdir="$(mktemp -d)"
+            trap 'rm -rf "$tmpdir"' EXIT
+            git clone --depth=1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$tmpdir/sdks"
+            git -C "$tmpdir/sdks" sparse-checkout set iPhoneOS16.5.sdk
+            cp -R "$tmpdir/sdks/iPhoneOS16.5.sdk" "$THEOS/sdks/"
+          fi
+          test -d "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework"
+          test -f "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"
 
       - name: Install build dependencies
         run: brew install ldid xz dpkg

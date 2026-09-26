@@ -8,8 +8,8 @@ on:
 env:
   THEOS: ${{ github.workspace }}/theos
   TARGET: iphone:clang:16.5:15.0
-  ARCHS: arm64
-  THEOS_PACKAGE_SCHEME: rootless
+  ARCHS: arm64e
+  THEOS_PACKAGE_SCHEME: roothide
 
 jobs:
   build:
@@ -18,16 +18,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache Theos
+      - name: Cache RootHide Theos
         id: theos-cache
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/theos
-          key: ${{ runner.os }}-theos-rootless-v1
+          key: ${{ runner.os }}-roothide-theos-v1
 
-      - name: Install Theos
+      - name: Install RootHide Theos
         if: steps.theos-cache.outputs.cache-hit != 'true'
-        run: git clone --depth=1 --recursive https://github.com/theos/theos.git "$THEOS"
+        run: git clone --depth=1 --recursive https://github.com/roothide/theos.git "$THEOS"
+
+      - name: Verify RootHide package scheme
+        run: |
+          set -euo pipefail
+          test -d "$THEOS/vendor/mod/roothide"
+          test -f "$THEOS/vendor/mod/roothide/package.mk"
 
       - name: Install patched iOS 16.5 SDK
         run: |
@@ -55,21 +61,34 @@ jobs:
           set -euo pipefail
           deb="$(find packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
           test -n "$deb"
-          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
+
+          echo "Package: $deb"
+          echo "Architecture: $(dpkg-deb -f "$deb" Architecture)"
+          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64e"
 
           rm -rf .package-check
           dpkg-deb -x "$deb" .package-check
 
           dylib="$(find .package-check -type f -name 'AccessoryAlertTest.dylib' -print -quit)"
           test -n "$dylib"
-          test "$(lipo -archs "$dylib")" = "arm64"
+          echo "Dylib: $dylib"
+          test "$(lipo -archs "$dylib")" = "arm64e"
 
-          test -f ".package-check/var/jb/Library/MobileSubstrate/DynamicLibraries/AccessoryAlertTest.plist"
-          test -d ".package-check/var/jb/Library/PreferenceBundles/AccessoryAlertTestPrefs.bundle"
-          test -f ".package-check/var/jb/Library/PreferenceLoader/Preferences/com.simon.flipofftestprefs.plist"
+          pref_bundle="$(find .package-check -type d -name 'AccessoryAlertTestPrefs.bundle' -print -quit)"
+          test -n "$pref_bundle"
+          test -f "$pref_bundle/Info.plist"
+
+          pref_loader="$(find .package-check -type f -path '*/PreferenceLoader/Preferences/com.simon.flipofftestprefs.plist' -print -quit)"
+          test -n "$pref_loader"
+
+          springboard_filter="$(find .package-check -type f -name 'AccessoryAlertTest.plist' -print -quit)"
+          test -n "$springboard_filter"
+
+          echo "RootHide package contents:"
+          find .package-check -maxdepth 5 -print
 
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: AccessoryAlertTest-arm64-rootless
+          name: AccessoryAlertTest-arm64e-roothide
           path: packages/*.deb

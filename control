@@ -1,0 +1,9 @@
+Package: com.simon.flipoff
+Name: FlipOff
+Version: 0.1.0
+Architecture: iphoneos-arm64e
+Description: Suppresses unsupported charging accessory state in SpringBoard.
+Maintainer: Simon
+Author: Simon
+Section: Tweaks
+Depends: mobilesubstrate

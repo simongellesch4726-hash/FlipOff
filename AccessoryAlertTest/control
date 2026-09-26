@@ -1,9 +1,0 @@
-Package: com.simon.flipofftest
-Name: Accessory Alert Test
-Version: 0.1.0
-Architecture: iphoneos-arm64
-Description: Test trigger for the native unsupported charging accessory alert.
-Maintainer: Simon
-Author: Simon
-Section: Tweaks
-Depends: mobilesubstrate, preferenceloader

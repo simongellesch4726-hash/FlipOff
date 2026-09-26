@@ -36,12 +36,13 @@ static void ReloadPreferences(CFNotificationCenterRef center,
 
 %hook SBUIController
 
-- (bool)_treatsAccessoryAsSupported:(id)accessory {
+- (void)setIsConnectedToUnsupportedChargingAccessory:(bool)unsupported {
     if (gFlipOffEnabled) {
-        return YES;
+        %orig(NO);
+        return;
     }
 
-    return %orig;
+    %orig(unsupported);
 }
 
 %end
@@ -65,6 +66,10 @@ static void TriggerAccessoryAlert(CFNotificationCenterRef center,
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
+        ((void (*)(id, SEL, BOOL))objc_msgSend)(controller,
+                                                sel_registerName("setIsConnectedToUnsupportedChargingAccessory:"),
+                                                NO);
+
         ((void (*)(id, SEL, BOOL))objc_msgSend)(controller,
                                                 sel_registerName("setIsConnectedToUnsupportedChargingAccessory:"),
                                                 YES);

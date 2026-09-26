@@ -2,16 +2,8 @@
 
 %hook SBUIController
 
-- (bool)isConnectedToUnsupportedChargingAccessory {
-    return NO;
-}
-
-- (bool)isConnectedToChargeIncapablePowerSource {
-    return NO;
-}
-
-- (void)setIsConnectedToUnsupportedChargingAccessory:(bool)value {
-    %orig(NO);
+- (bool)_treatsAccessoryAsSupported:(id)accessory {
+    return YES;
 }
 
 %end

@@ -1,11 +1,11 @@
 include $(THEOS)/makefiles/common.mk
 
-BUNDLE_NAME = AccessoryAlertTestPrefs
+BUNDLE_NAME = FlipOffPrefs
 
-AccessoryAlertTestPrefs_FILES = AccessoryAlertTestPrefs.m
-AccessoryAlertTestPrefs_FRAMEWORKS = UIKit
-AccessoryAlertTestPrefs_PRIVATE_FRAMEWORKS = Preferences
-AccessoryAlertTestPrefs_INSTALL_PATH = /Library/PreferenceBundles
-AccessoryAlertTestPrefs_CFLAGS = -fobjc-arc
+FlipOffPrefs_FILES = FlipOffPrefs.m
+FlipOffPrefs_FRAMEWORKS = UIKit
+FlipOffPrefs_PRIVATE_FRAMEWORKS = Preferences
+FlipOffPrefs_INSTALL_PATH = /Library/PreferenceBundles
+FlipOffPrefs_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/bundle.mk

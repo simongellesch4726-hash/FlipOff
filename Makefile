@@ -4,9 +4,12 @@ THEOS_PACKAGE_SCHEME = rootless
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = FlipOff
+TWEAK_NAME = AccessoryAlertTest
 
-FlipOff_FILES = Tweak.xm
-FlipOff_FRAMEWORKS = Foundation UIKit
+AccessoryAlertTest_FILES = Tweak.xm
+AccessoryAlertTest_FRAMEWORKS = Foundation
 
 include $(THEOS_MAKE_PATH)/tweak.mk
+
+SUBPROJECTS += Preferences
+include $(THEOS_MAKE_PATH)/aggregate.mk

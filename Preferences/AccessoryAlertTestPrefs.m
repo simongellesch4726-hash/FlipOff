@@ -20,7 +20,7 @@ static NSString * const kTriggerNotification = @"com.simon.flipofftest/trigger";
                                                                 cell:PSButtonCell
                                                                 edit:nil];
         [button setButtonAction:@selector(triggerAlert)];
-        _specifiers = @[button];
+        _specifiers = [NSMutableArray arrayWithObject:button];
     }
 
     return _specifiers;

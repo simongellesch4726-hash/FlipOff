@@ -3,10 +3,45 @@
 #import <objc/message.h>
 #import <objc/runtime.h>
 
+static NSString * const kPreferencesChangedNotification = @"com.simon.flipoff/preferencesChanged";
+static CFStringRef const kPreferencesAppID = CFSTR("com.simon.flipoff");
+static CFStringRef const kEnabledKey = CFSTR("Enabled");
+
+static BOOL FlipOffEnabled(void) {
+    CFPropertyListRef value = CFPreferencesCopyAppValue(kEnabledKey, kPreferencesAppID);
+
+    if (!value) {
+        return YES;
+    }
+
+    BOOL enabled = YES;
+
+    if (CFGetTypeID(value) == CFBooleanGetTypeID()) {
+        enabled = CFBooleanGetValue((CFBooleanRef)value);
+    }
+
+    CFRelease(value);
+    return enabled;
+}
+
+static BOOL gFlipOffEnabled = YES;
+
+static void ReloadPreferences(CFNotificationCenterRef center,
+                              void *observer,
+                              CFStringRef name,
+                              const void *object,
+                              CFDictionaryRef userInfo) {
+    gFlipOffEnabled = FlipOffEnabled();
+}
+
 %hook SBUIController
 
 - (bool)_treatsAccessoryAsSupported:(id)accessory {
-    return YES;
+    if (gFlipOffEnabled) {
+        return YES;
+    }
+
+    return %orig;
 }
 
 %end
@@ -37,6 +72,15 @@ static void TriggerAccessoryAlert(CFNotificationCenterRef center,
 }
 
 %ctor {
+    gFlipOffEnabled = FlipOffEnabled();
+
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+                                     NULL,
+                                     ReloadPreferences,
+                                     (__bridge CFStringRef)kPreferencesChangedNotification,
+                                     NULL,
+                                     CFNotificationSuspensionBehaviorDeliverImmediately);
+
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
                                      NULL,
                                      TriggerAccessoryAlert,

@@ -1,14 +1,15 @@
-name: Build FlipOff
+name: Build FlipOff 1.0
 
 on:
   push:
     branches: ["**"]
   pull_request:
+  workflow_dispatch:
 
 env:
   THEOS: ${{ github.workspace }}/theos
-  TARGET: iphone:clang:latest:15.0
-  ARCHS: arm64
+  TARGET: iphone:clang:16.5:15.0
+  ARCHS: arm64 arm64e
   THEOS_PACKAGE_SCHEME: rootless
 
 jobs:
@@ -23,17 +24,31 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/theos
-          key: ${{ runner.os }}-theos-rootless-v1
+          key: ${{ runner.os }}-theos-rootless-v2
 
       - name: Install Theos
         if: steps.theos-cache.outputs.cache-hit != 'true'
         run: git clone --depth=1 --recursive https://github.com/theos/theos.git "$THEOS"
 
+      - name: Install patched iOS 16.5 SDK
+        run: |
+          set -euo pipefail
+          mkdir -p "$THEOS/sdks"
+          if [ ! -d "$THEOS/sdks/iPhoneOS16.5.sdk" ]; then
+            tmpdir="$(mktemp -d)"
+            trap 'rm -rf "$tmpdir"' EXIT
+            git clone --depth=1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$tmpdir/sdks"
+            git -C "$tmpdir/sdks" sparse-checkout set iPhoneOS16.5.sdk
+            cp -R "$tmpdir/sdks/iPhoneOS16.5.sdk" "$THEOS/sdks/"
+          fi
+          test -d "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework"
+          test -f "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"
+
       - name: Install build dependencies
         run: brew install ldid xz dpkg
 
       - name: Build FlipOff
-        run: make package FINALPACKAGE=1
+        run: make clean package FINALPACKAGE=1
 
       - name: Validate package
         shell: bash
@@ -41,17 +56,37 @@ jobs:
           set -euo pipefail
           deb="$(find packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
           test -n "$deb"
-          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
+
+          echo "Package: $deb"
           dpkg-deb -f "$deb" Package Version Architecture
+          test "$(dpkg-deb -f "$deb" Package)" = "com.simon.flipoff"
+          test "$(dpkg-deb -f "$deb" Version)" = "1.0.0"
+          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
+
           rm -rf .package-check
           dpkg-deb -x "$deb" .package-check
+
           dylib="$(find .package-check -type f -name 'FlipOff.dylib' -print -quit)"
           test -n "$dylib"
-          test "$(lipo -archs "$dylib")" = "arm64"
-          find .package-check -type f -o -type l | sort
+          echo "Dylib: $dylib"
+          test "$(lipo -archs "$dylib")" = "arm64 arm64e"
+
+          pref_bundle="$(find .package-check -type d -name 'FlipOffPrefs.bundle' -print -quit)"
+          test -n "$pref_bundle"
+          test -f "$pref_bundle/Info.plist"
+          test -f "$pref_bundle/FlipOffPrefs"
+
+          pref_loader="$(find .package-check -type f -path '*/PreferenceLoader/Preferences/com.simon.flipoffprefs.plist' -print -quit)"
+          test -n "$pref_loader"
+
+          springboard_filter="$(find .package-check -type f -name 'FlipOff.plist' -print -quit)"
+          test -n "$springboard_filter"
+
+          echo "Package contents:"
+          find .package-check -maxdepth 6 -print | sort
 
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: FlipOff-deb-arm64-rootless
+          name: FlipOff-1.0.0-rootless-arm64-arm64e
           path: packages/*.deb

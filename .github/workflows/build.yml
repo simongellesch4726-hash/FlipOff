@@ -1,4 +1,4 @@
-name: Build FlipOff 1.2
+name: Build FlipOff 1.0.0
 
 on:
   push:
@@ -59,8 +59,8 @@ jobs:
 
           echo "Package: $deb"
           dpkg-deb -f "$deb" Package Version Architecture
-          test "$(dpkg-deb -f "$deb" Package)" = "com.simon.flipoff"
-          test "$(dpkg-deb -f "$deb" Version)" = "1.2.0"
+          test "$(dpkg-deb -f "$deb" Package)" = "com.Pizzle.FlipOff"
+          test "$(dpkg-deb -f "$deb" Version)" = "1.0.0"
           test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
 
           rm -rf .package-check
@@ -76,7 +76,7 @@ jobs:
           test -f "$pref_bundle/Info.plist"
           test -f "$pref_bundle/FlipOffPrefs"
 
-          pref_loader="$(find .package-check -type f -path '*/PreferenceLoader/Preferences/com.simon.flipoffprefs.plist' -print -quit)"
+          pref_loader="$(find .package-check -type f -path '*/PreferenceLoader/Preferences/com.Pizzle.FlipOffprefs.plist' -print -quit)"
           test -n "$pref_loader"
 
           springboard_filter="$(find .package-check -type f -name 'FlipOff.plist' -print -quit)"
@@ -89,7 +89,8 @@ jobs:
           grep -q '%orig(unsupported)' Tweak.xm
           grep -q 'PSSwitchCell' Preferences/FlipOffPrefs.m
           grep -q 'setEnabled:specifier:' Preferences/FlipOffPrefs.m
-          grep -q 'Test Accessory Alert' Preferences/FlipOffPrefs.m
+          grep -q 'preferenceSpecifierNamed:@"magic button"' Preferences/FlipOffPrefs.m
+          grep -q 'if this button works, the tweak doesn’t' Preferences/FlipOffPrefs.m
 
           echo "Package contents:"
           find .package-check -maxdepth 6 -print | sort
@@ -97,5 +98,5 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: FlipOff-1.2.0-rootless-arm64-arm64e
+          name: FlipOff-1.0.0-rootless-arm64-arm64e
           path: packages/*.deb

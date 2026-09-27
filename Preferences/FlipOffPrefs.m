@@ -3,10 +3,10 @@
 #import <Preferences/PSSpecifier.h>
 #import <CoreFoundation/CoreFoundation.h>
 
-static NSString * const kPreferencesChangedNotification = @"com.simon.flipoff/preferencesChanged";
-static CFStringRef const kPreferencesAppID = CFSTR("com.simon.flipoff");
+static NSString * const kPreferencesChangedNotification = @"com.Pizzle.FlipOff/preferencesChanged";
+static CFStringRef const kPreferencesAppID = CFSTR("com.Pizzle.FlipOff");
 static CFStringRef const kEnabledKey = CFSTR("Enabled");
-static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
+static NSString * const kTriggerNotification = @"com.Pizzle.FlipOff/trigger";
 
 @interface FlipOffPrefs : PSListController
 @end
@@ -23,7 +23,16 @@ static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
                                                                         cell:PSSwitchCell
                                                                         edit:nil];
 
-        PSSpecifier *button = [PSSpecifier preferenceSpecifierNamed:@"Test Accessory Alert"
+        PSSpecifier *note = [PSSpecifier preferenceSpecifierNamed:@""
+                                                            target:self
+                                                               set:nil
+                                                               get:nil
+                                                            detail:nil
+                                                              cell:PSGroupCell
+                                                              edit:nil];
+        [note setProperty:@"if this button works, the tweak doesn’t" forKey:@"footerText"];
+
+        PSSpecifier *button = [PSSpecifier preferenceSpecifierNamed:@"magic button"
                                                               target:self
                                                                  set:nil
                                                                  get:nil
@@ -32,7 +41,7 @@ static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
                                                                 edit:nil];
         [button setButtonAction:@selector(triggerAlert)];
 
-        _specifiers = [NSMutableArray arrayWithObjects:enabledSwitch, button, nil];
+        _specifiers = [NSMutableArray arrayWithObjects:enabledSwitch, note, button, nil];
     }
 
     return _specifiers;

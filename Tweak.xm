@@ -3,8 +3,8 @@
 #import <objc/message.h>
 #import <objc/runtime.h>
 
-static NSString * const kPreferencesChangedNotification = @"com.simon.flipoff/preferencesChanged";
-static CFStringRef const kPreferencesAppID = CFSTR("com.simon.flipoff");
+static NSString * const kPreferencesChangedNotification = @"com.Pizzle.FlipOff/preferencesChanged";
+static CFStringRef const kPreferencesAppID = CFSTR("com.Pizzle.FlipOff");
 static CFStringRef const kEnabledKey = CFSTR("Enabled");
 
 static BOOL FlipOffEnabled(void) {
@@ -47,7 +47,7 @@ static void ReloadPreferences(CFNotificationCenterRef center,
 
 %end
 
-static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
+static NSString * const kTriggerNotification = @"com.Pizzle.FlipOff/trigger";
 
 static void TriggerAccessoryAlert(CFNotificationCenterRef center,
                                    void *observer,

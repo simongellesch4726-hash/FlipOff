@@ -59,7 +59,7 @@ jobs:
 
           echo "Package: $deb"
           dpkg-deb -f "$deb" Package Version Architecture
-          test "$(dpkg-deb -f "$deb" Package)" = "com.simon.flipoff"
+          test "$(dpkg-deb -f "$deb" Package)" = "com.Pizzle.FlipOff"
           test "$(dpkg-deb -f "$deb" Version)" = "1.0.0"
           test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
 
@@ -76,7 +76,7 @@ jobs:
           test -f "$pref_bundle/Info.plist"
           test -f "$pref_bundle/FlipOffPrefs"
 
-          pref_loader="$(find .package-check -type f -path '*/PreferenceLoader/Preferences/com.simon.flipoffprefs.plist' -print -quit)"
+          pref_loader="$(find .package-check -type f -path '*/PreferenceLoader/Preferences/com.Pizzle.FlipOffprefs.plist' -print -quit)"
           test -n "$pref_loader"
 
           springboard_filter="$(find .package-check -type f -name 'FlipOff.plist' -print -quit)"

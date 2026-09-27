@@ -7,7 +7,7 @@
     <key>CFBundleExecutable</key>
     <string>FlipOffPrefs</string>
     <key>CFBundleIdentifier</key>
-    <string>com.simon.flipoffprefs</string>
+    <string>com.Pizzle.FlipOffPrefs</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundlePackageType</key>

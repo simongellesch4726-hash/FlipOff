@@ -3,10 +3,10 @@
 #import <Preferences/PSSpecifier.h>
 #import <CoreFoundation/CoreFoundation.h>
 
-static NSString * const kPreferencesChangedNotification = @"com.simon.flipoff/preferencesChanged";
-static CFStringRef const kPreferencesAppID = CFSTR("com.simon.flipoff");
+static NSString * const kPreferencesChangedNotification = @"com.Pizzle.FlipOff/preferencesChanged";
+static CFStringRef const kPreferencesAppID = CFSTR("com.Pizzle.FlipOff");
 static CFStringRef const kEnabledKey = CFSTR("Enabled");
-static NSString * const kTriggerNotification = @"com.simon.flipoff/trigger";
+static NSString * const kTriggerNotification = @"com.Pizzle.FlipOff/trigger";
 
 @interface FlipOffPrefs : PSListController
 @end
